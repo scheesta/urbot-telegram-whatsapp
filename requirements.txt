@@ -1,4 +1,5 @@
 flask
 gunicorn
-groq
+requests
 python-dotenv
+groq
