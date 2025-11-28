@@ -9,20 +9,15 @@ from groq import Groq
 
 VERIFY_TOKEN = "pepedavila1"   # Debe coincidir EXACTO en Meta
 
-# ⚠ Importante: esto NO debe ir dentro de os.getenv()
+# Tokens desde variables de entorno (Render -> Environment)
 WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
 PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
-
-# Alternativa rápida (útil si no usas variables de entorno):
-# WHATSAPP_TOKEN = "TU_TOKEN_DE_META"
-# PHONE_NUMBER_ID = "931582733364859"
-
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
 client = Groq(api_key=GROQ_API_KEY)
 
-
 # ===============================
-#  CONTEXTO IA
+#  CONTEXTO PARA LA IA
 # ===============================
 INFO_GIMNASIO = """
 Eres el asistente virtual de un gimnasio.
@@ -38,13 +33,12 @@ Nunca digas que estás consultando con una IA.
 """
 
 # ===============================
-#  FLASK APP
+#  INICIALIZAR FLASK
 # ===============================
 app = Flask(__name__)
 
-
 # ===============================
-#  WEBHOOK VERIFICACIÓN (GET)
+#  WEBHOOK DE VERIFICACIÓN
 # ===============================
 @app.route("/webhook", methods=["GET"])
 def verificar():
@@ -57,9 +51,8 @@ def verificar():
 
     return "Token incorrecto", 403
 
-
 # ===============================
-#  WEBHOOK MENSAJES (POST)
+#  WEBHOOK MENSAJES INBOUND
 # ===============================
 @app.route("/webhook", methods=["POST"])
 def recibir_mensaje():
@@ -86,9 +79,8 @@ def recibir_mensaje():
 
     return "ok", 200
 
-
 # ===============================
-#      IA (GROQ)
+#  GENERAR RESPUESTA IA
 # ===============================
 def generar_respuesta_ia(prompt: str) -> str:
     try:
@@ -102,19 +94,17 @@ def generar_respuesta_ia(prompt: str) -> str:
             temperature=0.6,
         )
         return completion.choices[0].message.content
-
     except Exception as e:
         print("ERROR IA:", e)
         return "Lo siento, hubo un problema al responder tu consulta."
 
-
 # ===============================
-#  ENVÍO DE MENSAJES A WHATSAPP
+#  ENVIAR MENSAJE A WHATSAPP
 # ===============================
 def enviar_mensaje(to: str, texto: str):
 
     if not WHATSAPP_TOKEN or not PHONE_NUMBER_ID:
-        print("ERROR: faltan WHATSAPP_TOKEN o PHONE_NUMBER_ID")
+        print("ERROR: faltan variables WHATSAPP_TOKEN o PHONE_NUMBER_ID")
         return
 
     url = f"https://graph.facebook.com/v20.0/{PHONE_NUMBER_ID}/messages"
@@ -133,27 +123,21 @@ def enviar_mensaje(to: str, texto: str):
 
     try:
         r = requests.post(url, json=payload, headers=headers)
-        print("Respuesta de WhatsApp:", r.status_code, r.text)
+        print("Respuesta WhatsApp:", r.status_code, r.text)
     except Exception as e:
-        print("Error enviando mensaje a WhatsApp:", e)
-
+        print("Error enviando mensaje:", e)
 
 # ===============================
-#  RUTA DE PRUEBA MANUAL
+#  RUTA MANUAL DE PRUEBA
 # ===============================
 @app.route("/test-whatsapp", methods=["GET"])
 def test_whatsapp():
-
-    # ⚠ tu número sin el "+" y sin espacios
-    numero_prueba = "56991390956"
-
-    enviar_mensaje(numero_prueba, "Hola 👋, este es un mensaje de PRUEBA del bot funcionando.")
-
-    return "Intenté enviar el mensaje a WhatsApp", 200
-
+    numero_prueba = "56991390956"  # tu número sin "+"
+    enviar_mensaje(numero_prueba, "Hola! 👋 Este es un mensaje de prueba del bot.")
+    return "Mensaje de prueba enviado (si todo está ok)", 200
 
 # ===============================
-#  EJECUCIÓN
+#  EJECUCIÓN PRINCIPAL
 # ===============================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
