@@ -9,15 +9,11 @@ from groq import Groq
 
 VERIFY_TOKEN = "pepedavila1"   # Debe coincidir EXACTO en Meta
 
-# Opción con variables de entorno (recomendada):
-WHATSAPP_TOKEN = os.getenv("EAAdWjZA8pB9YBQP73NcNWmx3PYrAro6xnSgfKd6dVRP23qP7xSFU1MyiyikS8ZAO0mQojwN3l9M2KhlRm00bL5SnfZCdIAANdWZBCBVI89gZB7zUbW2USYyVPqsmv0bWNR4jCZCcmE8JXhNbT22okzySP4F52SZB4ZCDZCoXpq6UbOd1MSX6u65kKIyag3sjrf5fnvDrCY445iQZBgPwdZBBZBbapZAFmhZANejCZAHSsyEnALApO7psNKM1rTyKBNZB9PRKjodux1Sqkx6gKJ7ZBZAVmDkUQjUStly6CJSnlUBIf9a48ZD")
-PHONE_NUMBER_ID = os.getenv("931582733364859")
+# Estas 3 van como variables de entorno en Render
+WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")      # token EA...
+PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")    # 931582733364859
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")          # gsk_...
 
-# Si prefieres rápido y sin envs, puedes usar directamente:
-# WHATSAPP_TOKEN = "TU_TOKEN_DE_META_AQUI"
-# PHONE_NUMBER_ID = "931582733364859"
-
-GROQ_API_KEY = os.getenv("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")
 client = Groq(api_key=GROQ_API_KEY)
 
 INFO_GIMNASIO = """
