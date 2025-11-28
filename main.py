@@ -9,14 +9,17 @@ from groq import Groq
 
 VERIFY_TOKEN = "pepedavila1"   # Debe coincidir EXACTO en Meta
 
-WHATSAPP_TOKEN = os.getenv("EAAdWjZA8pB9YBQOlXtRayNNI7nD4uXkjA5kxDW146FWe8SAXuMK297yCjKRf9Nef4gD3bRqlDa0bg0BceERLsZCH7FyvHZAevn0EivAwdR5ZBfXy1uzC4pmNYcxToKUZCfLt8khvyoPhwyy5Ev1piOa3VIgj4UwypY47pO1EWTZAR2EZBsCRiuMoZBqwhnBgjGevJwtWgTg7WCUjILdSZBa3Cc2waNYzIJT8E5CZBRo7qnz4ziZBk0ycU2GQdDChOKGmCyx0q4uFSp4cyKj2yUPiH3XZB1Fpsm6mDWOQsSHO3QZDZD")
+# Opción con variables de entorno (recomendada):
+WHATSAPP_TOKEN = os.getenv("EAAdWjZA8pB9YBQP73NcNWmx3PYrAro6xnSgfKd6dVRP23qP7xSFU1MyiyikS8ZAO0mQojwN3l9M2KhlRm00bL5SnfZCdIAANdWZBCBVI89gZB7zUbW2USYyVPqsmv0bWNR4jCZCcmE8JXhNbT22okzySP4F52SZB4ZCDZCoXpq6UbOd1MSX6u65kKIyag3sjrf5fnvDrCY445iQZBgPwdZBBZBbapZAFmhZANejCZAHSsyEnALApO7psNKM1rTyKBNZB9PRKjodux1Sqkx6gKJ7ZBZAVmDkUQjUStly6CJSnlUBIf9a48ZD")
 PHONE_NUMBER_ID = os.getenv("931582733364859")
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+# Si prefieres rápido y sin envs, puedes usar directamente:
+# WHATSAPP_TOKEN = "TU_TOKEN_DE_META_AQUI"
+# PHONE_NUMBER_ID = "931582733364859"
 
+GROQ_API_KEY = os.getenv("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")
 client = Groq(api_key=GROQ_API_KEY)
 
-# Contexto del gimnasio
 INFO_GIMNASIO = """
 Eres el asistente virtual de un gimnasio.
 Respondes de forma clara, amable y breve.
@@ -30,13 +33,12 @@ Datos del gimnasio:
 Nunca digas que estás consultando con una IA.
 """
 
-# ===============================
-#  APP FLASK
-# ===============================
-
 app = Flask(__name__)
 
-@app.route("/", methods=["GET"])
+# ===============================
+#  WEBHOOK VERIFICACIÓN (GET)
+# ===============================
+@app.route("/webhook", methods=["GET"])
 def verificar():
     mode = request.args.get("hub.mode")
     token = request.args.get("hub.verify_token")
@@ -48,7 +50,10 @@ def verificar():
     return "Token incorrecto", 403
 
 
-@app.route("/", methods=["POST"])
+# ===============================
+#  WEBHOOK MENSAJES (POST)
+# ===============================
+@app.route("/webhook", methods=["POST"])
 def recibir_mensaje():
     data = request.get_json()
 
@@ -77,7 +82,6 @@ def recibir_mensaje():
 # ===============================
 #  LÓGICA DE IA
 # ===============================
-
 def generar_respuesta_ia(prompt: str) -> str:
     try:
         completion = client.chat.completions.create(
@@ -90,7 +94,6 @@ def generar_respuesta_ia(prompt: str) -> str:
             temperature=0.6,
         )
         return completion.choices[0].message.content
-
     except Exception as e:
         print("ERROR IA:", e)
         return "Lo siento, hubo un problema al responder tu consulta."
@@ -99,7 +102,6 @@ def generar_respuesta_ia(prompt: str) -> str:
 # ===============================
 #  ENVÍO DE MENSAJES A WHATSAPP
 # ===============================
-
 def enviar_mensaje(to: str, texto: str):
     url = f"https://graph.facebook.com/v20.0/{PHONE_NUMBER_ID}/messages"
 
