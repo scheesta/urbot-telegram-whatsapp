@@ -1,6 +1,3 @@
-git add .
-git commit -m "agregada ruta test-whatsapp"
-git push
 import os
 from flask import Flask, request
 import requests
@@ -161,4 +158,3 @@ def test_whatsapp():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     app.run(host="0.0.0.0", port=port)
-
